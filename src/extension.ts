@@ -88,17 +88,130 @@ export function activate(context: vscode.ExtensionContext) {
 
         try {
             const content = await vscode.workspace.fs.readFile(uri);
+            const newFilePath = path.join(dirPath, newFileName);
             await vscode.workspace.fs.writeFile(
-                vscode.Uri.file(path.join(dirPath, newFileName)),
+                vscode.Uri.file(newFilePath),
                 content
             );
-            vscode.window.showInformationMessage(`文件已复制为 "${newFileName}"`);
+            const answer = await vscode.window.showInformationMessage(
+                `File copied as "${newFileName}"`,
+                'Open File',
+                'OK'
+            );
+            if (answer === 'Open File') {
+                const document = await vscode.workspace.openTextDocument(vscode.Uri.file(newFilePath));
+                await vscode.window.showTextDocument(document);
+            }
         } catch (err) {
-            vscode.window.showErrorMessage(`复制文件失败: ${err}`);
+            vscode.window.showErrorMessage(`Failed to copy file: ${err}`);
         }
     });
 
-    context.subscriptions.push(deleteFile, renameFile, copyFile);
+    // 复制到指定目录命令
+    let copyFileTo = vscode.commands.registerCommand('enhanced-tab.copyFileTo', async (uri: vscode.Uri) => {
+        if (!uri) {
+            return;
+        }
+
+        const sourceFilePath = uri.fsPath;
+        const fileName = path.basename(sourceFilePath);
+        const currentDir = path.dirname(sourceFilePath);
+
+        // 显示输入框让用户输入目标路径
+        const targetPath = await vscode.window.showInputBox({
+            prompt: 'Enter target file path',
+            value: path.join(currentDir, fileName),
+            validateInput: (value) => {
+                if (!value) {
+                    return 'Path cannot be empty';
+                }
+                // 检查路径是否合法
+                try {
+                    path.parse(value);
+                    return null;
+                } catch {
+                    return 'Invalid path format';
+                }
+            }
+        });
+
+        if (!targetPath) {
+            return;
+        }
+
+        const targetDir = path.dirname(targetPath);
+        const targetFileName = path.basename(targetPath);
+
+        // 确保目标目录存在
+        try {
+            await vscode.workspace.fs.createDirectory(vscode.Uri.file(targetDir));
+        } catch (err) {
+            // 如果目录已存在，忽略错误
+        }
+
+        // 检查目标文件是否已存在
+        if (fs.existsSync(targetPath)) {
+            const answer = await vscode.window.showWarningMessage(
+                `File "${targetFileName}" already exists. What would you like to do?`,
+                { modal: true },
+                'Overwrite',
+                'Rename',
+                'Cancel'
+            );
+
+            if (answer === 'Cancel') {
+                return;
+            }
+
+            if (answer === 'Rename') {
+                const fileExt = path.extname(targetFileName);
+                const fileNameWithoutExt = path.basename(targetFileName, fileExt);
+                let counter = 1;
+                let newFileName = `${fileNameWithoutExt}_${counter}${fileExt}`;
+                while (fs.existsSync(path.join(targetDir, newFileName))) {
+                    counter++;
+                    newFileName = `${fileNameWithoutExt}_${counter}${fileExt}`;
+                }
+                const content = await vscode.workspace.fs.readFile(uri);
+                const newFilePath = path.join(targetDir, newFileName);
+                await vscode.workspace.fs.writeFile(
+                    vscode.Uri.file(newFilePath),
+                    content
+                );
+                const openAnswer = await vscode.window.showInformationMessage(
+                    `File copied as "${newFilePath}"`,
+                    'Open File',
+                    'OK'
+                );
+                if (openAnswer === 'Open File') {
+                    const document = await vscode.workspace.openTextDocument(vscode.Uri.file(newFilePath));
+                    await vscode.window.showTextDocument(document);
+                }
+                return;
+            }
+        }
+
+        try {
+            const content = await vscode.workspace.fs.readFile(uri);
+            await vscode.workspace.fs.writeFile(
+                vscode.Uri.file(targetPath),
+                content
+            );
+            const answer = await vscode.window.showInformationMessage(
+                `File copied to "${targetPath}"`,
+                'Open File',
+                'OK'
+            );
+            if (answer === 'Open File') {
+                const document = await vscode.workspace.openTextDocument(vscode.Uri.file(targetPath));
+                await vscode.window.showTextDocument(document);
+            }
+        } catch (err) {
+            vscode.window.showErrorMessage(`Failed to copy file: ${err}`);
+        }
+    });
+
+    context.subscriptions.push(deleteFile, renameFile, copyFile, copyFileTo);
 }
 
 export function deactivate() {} 

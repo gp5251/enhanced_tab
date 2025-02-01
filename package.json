@@ -2,7 +2,7 @@
   "name": "enhanced-tab",
   "displayName": "Enhanced Tab",
   "description": "为编辑器标签页添加增强功能",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -15,15 +15,19 @@
     "commands": [
       {
         "command": "enhanced-tab.deleteFile",
-        "title": "delete file"
+        "title": "Delete File"
       },
       {
         "command": "enhanced-tab.renameFile",
-        "title": "rename file"
+        "title": "Rename File"
       },
       {
         "command": "enhanced-tab.copyFile",
-        "title": "copy file"
+        "title": "Copy File"
+      },
+      {
+        "command": "enhanced-tab.copyFileTo",
+        "title": "Copy To..."
       }
     ],
     "menus": {
@@ -38,6 +42,10 @@
         },
         {
           "command": "enhanced-tab.copyFile",
+          "group": "1_modification"
+        },
+        {
+          "command": "enhanced-tab.copyFileTo",
           "group": "1_modification"
         }
       ]
