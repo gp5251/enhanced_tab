@@ -1,11 +1,16 @@
 {
   "name": "enhanced-tab",
   "displayName": "Enhanced Tab",
-  "description": "为编辑器标签页添加增强功能",
-  "version": "0.0.2",
+  "description": "为编辑器标签页添加增强功能 | Add enhanced features to editor tabs",
+  "version": "0.0.3",
   "engines": {
     "vscode": "^1.85.0"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gp5251/enhanced-tab"
+  },
+  "publisher": "gp5251",
   "icon": "src/logo.png",
   "license": "MIT",
   "categories": [
