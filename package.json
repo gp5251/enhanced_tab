@@ -6,6 +6,8 @@
   "engines": {
     "vscode": "^1.85.0"
   },
+  "icon": "src/logo.png",
+  "license": "MIT",
   "categories": [
     "Other"
   ],
