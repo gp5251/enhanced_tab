@@ -2,7 +2,7 @@
   "name": "enhanced-tab",
   "displayName": "Enhanced Tab",
   "description": "为编辑器标签页添加增强功能 | Add enhanced features to editor tabs",
-  "version": "0.0.3",
+  "version": "0.0.6",
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -19,6 +19,16 @@
   "activationEvents": [],
   "main": "./dist/extension.js",
   "contributes": {
+    "configuration": {
+      "title": "Enhanced Tab",
+      "properties": {
+        "enhanced-tab.autoOpenFile": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically open file after copy/move operations | 复制/移动文件后自动打开文件"
+        }
+      }
+    },
     "commands": [
       {
         "command": "enhanced-tab.deleteFile",
@@ -35,6 +45,10 @@
       {
         "command": "enhanced-tab.copyFileTo",
         "title": "Copy To..."
+      },
+      {
+        "command": "enhanced-tab.moveTo",
+        "title": "Move To..."
       }
     ],
     "menus": {
@@ -53,6 +67,10 @@
         },
         {
           "command": "enhanced-tab.copyFileTo",
+          "group": "1_modification"
+        },
+        {
+          "command": "enhanced-tab.moveTo",
           "group": "1_modification"
         }
       ]

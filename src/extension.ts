@@ -25,6 +25,9 @@ interface LocalizedStrings {
     openFileButton: string;
     okButton: string;
     copyFileFailed: string;
+    enterMoveTargetPath: string;
+    fileMoved: string;
+    moveFileFailed: string;
 }
 
 function getLocalizedStrings(): LocalizedStrings {
@@ -53,7 +56,10 @@ function getLocalizedStrings(): LocalizedStrings {
         fileCopiedTo: '文件已复制到 "{0}"',
         openFileButton: '打开文件',
         okButton: '确定',
-        copyFileFailed: '复制文件失败: {0}'
+        copyFileFailed: '复制文件失败: {0}',
+        enterMoveTargetPath: '输入移动目标路径',
+        fileMoved: '文件已移动到 "{0}"',
+        moveFileFailed: '移动文件失败: {0}'
     };
 
     // 英文字符串
@@ -78,11 +84,57 @@ function getLocalizedStrings(): LocalizedStrings {
         fileCopiedTo: 'File copied to "{0}"',
         openFileButton: 'Open File',
         okButton: 'OK',
-        copyFileFailed: 'Failed to copy file: {0}'
+        copyFileFailed: 'Failed to copy file: {0}',
+        enterMoveTargetPath: 'Enter move target path',
+        fileMoved: 'File moved to "{0}"',
+        moveFileFailed: 'Failed to move file: {0}'
     };
 
     // 根据语言返回相应的字符串
     return language.startsWith('zh') ? zhStrings : enStrings;
+}
+
+// 获取相对于工作区的路径
+function getRelativePath(fullPath: string): string {
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    if (!workspaceFolders) {
+        return fullPath;
+    }
+
+    // 遍历所有工作区，找到最匹配的那个
+    let bestMatch = '';
+    let relativePath = fullPath;
+
+    for (const folder of workspaceFolders) {
+        const folderPath = folder.uri.fsPath;
+        if (fullPath.startsWith(folderPath) && folderPath.length > bestMatch.length) {
+            bestMatch = folderPath;
+            relativePath = path.relative(folderPath, fullPath);
+        }
+    }
+
+    return relativePath;
+}
+
+// 从相对路径获取完整路径
+function getFullPath(relativePath: string, basePath: string): string {
+    if (path.isAbsolute(relativePath)) {
+        return relativePath;
+    }
+    return path.join(basePath, relativePath);
+}
+
+// 打开文件的辅助函数
+async function openFileIfConfigured(filePath: string) {
+    const config = vscode.workspace.getConfiguration('enhanced-tab');
+    const autoOpen = config.get<boolean>('autoOpenFile');
+
+    if (autoOpen) {
+        const document = await vscode.workspace.openTextDocument(vscode.Uri.file(filePath));
+        await vscode.window.showTextDocument(document);
+        return true;
+    }
+    return false;
 }
 
 export function activate(context: vscode.ExtensionContext) {
@@ -178,14 +230,20 @@ export function activate(context: vscode.ExtensionContext) {
                 vscode.Uri.file(newFilePath),
                 content
             );
-            const answer = await vscode.window.showInformationMessage(
-                strings.fileCopiedAs.replace('{0}', newFileName),
-                strings.openFileButton,
-                strings.okButton
-            );
-            if (answer === strings.openFileButton) {
-                const document = await vscode.workspace.openTextDocument(vscode.Uri.file(newFilePath));
-                await vscode.window.showTextDocument(document);
+
+            const wasOpened = await openFileIfConfigured(newFilePath);
+            if (!wasOpened) {
+                const answer = await vscode.window.showInformationMessage(
+                    strings.fileCopiedAs.replace('{0}', newFileName),
+                    strings.openFileButton,
+                    strings.okButton
+                );
+                if (answer === strings.openFileButton) {
+                    const document = await vscode.workspace.openTextDocument(vscode.Uri.file(newFilePath));
+                    await vscode.window.showTextDocument(document);
+                }
+            } else {
+                vscode.window.showInformationMessage(strings.fileCopiedAs.replace('{0}', newFileName));
             }
         } catch (err) {
             vscode.window.showErrorMessage(strings.copyFileFailed.replace('{0}', String(err)));
@@ -201,11 +259,12 @@ export function activate(context: vscode.ExtensionContext) {
         const sourceFilePath = uri.fsPath;
         const fileName = path.basename(sourceFilePath);
         const currentDir = path.dirname(sourceFilePath);
+        const relativeSourcePath = getRelativePath(sourceFilePath);
 
         // 显示输入框让用户输入目标路径
-        const targetPath = await vscode.window.showInputBox({
+        const targetRelativePath = await vscode.window.showInputBox({
             prompt: strings.enterTargetPath,
-            value: path.join(currentDir, fileName),
+            value: relativeSourcePath,
             validateInput: (value) => {
                 if (!value) {
                     return strings.pathEmpty;
@@ -220,16 +279,18 @@ export function activate(context: vscode.ExtensionContext) {
             }
         });
 
-        if (!targetPath) {
+        if (!targetRelativePath) {
             return;
         }
 
-        const targetDir = path.dirname(targetPath);
-        const targetFileName = path.basename(targetPath);
+        // 获取完整路径
+        const workspaceFolder = vscode.workspace.getWorkspaceFolder(uri);
+        const basePath = workspaceFolder ? workspaceFolder.uri.fsPath : currentDir;
+        const targetPath = getFullPath(targetRelativePath, basePath);
 
         // 确保目标目录存在
         try {
-            await vscode.workspace.fs.createDirectory(vscode.Uri.file(targetDir));
+            await vscode.workspace.fs.createDirectory(vscode.Uri.file(path.dirname(targetPath)));
         } catch (err) {
             // 如果目录已存在，忽略错误
         }
@@ -237,7 +298,7 @@ export function activate(context: vscode.ExtensionContext) {
         // 检查目标文件是否已存在
         if (fs.existsSync(targetPath)) {
             const answer = await vscode.window.showWarningMessage(
-                strings.fileExists.replace('{0}', targetFileName),
+                strings.fileExists.replace('{0}', path.basename(targetPath)),
                 { modal: true },
                 strings.overwriteButton,
                 strings.renameButton,
@@ -249,28 +310,38 @@ export function activate(context: vscode.ExtensionContext) {
             }
 
             if (answer === strings.renameButton) {
-                const fileExt = path.extname(targetFileName);
-                const fileNameWithoutExt = path.basename(targetFileName, fileExt);
+                const fileExt = path.extname(path.basename(targetPath));
+                const fileNameWithoutExt = path.basename(path.basename(targetPath), fileExt);
                 let counter = 1;
                 let newFileName = `${fileNameWithoutExt}_${counter}${fileExt}`;
-                while (fs.existsSync(path.join(targetDir, newFileName))) {
+                while (fs.existsSync(path.join(path.dirname(targetPath), newFileName))) {
                     counter++;
                     newFileName = `${fileNameWithoutExt}_${counter}${fileExt}`;
                 }
-                const content = await vscode.workspace.fs.readFile(uri);
-                const newFilePath = path.join(targetDir, newFileName);
-                await vscode.workspace.fs.writeFile(
-                    vscode.Uri.file(newFilePath),
-                    content
-                );
-                const openAnswer = await vscode.window.showInformationMessage(
-                    strings.fileCopiedAs.replace('{0}', newFilePath),
-                    strings.openFileButton,
-                    strings.okButton
-                );
-                if (openAnswer === strings.openFileButton) {
-                    const document = await vscode.workspace.openTextDocument(vscode.Uri.file(newFilePath));
-                    await vscode.window.showTextDocument(document);
+                try {
+                    const content = await vscode.workspace.fs.readFile(uri);
+                    const newFilePath = path.join(path.dirname(targetPath), newFileName);
+                    await vscode.workspace.fs.writeFile(
+                        vscode.Uri.file(newFilePath),
+                        content
+                    );
+
+                    const wasOpened = await openFileIfConfigured(newFilePath);
+                    if (!wasOpened) {
+                        const openAnswer = await vscode.window.showInformationMessage(
+                            strings.fileCopiedAs.replace('{0}', newFilePath),
+                            strings.openFileButton,
+                            strings.okButton
+                        );
+                        if (openAnswer === strings.openFileButton) {
+                            const document = await vscode.workspace.openTextDocument(vscode.Uri.file(newFilePath));
+                            await vscode.window.showTextDocument(document);
+                        }
+                    } else {
+                        vscode.window.showInformationMessage(strings.fileCopiedAs.replace('{0}', newFilePath));
+                    }
+                } catch (err) {
+                    vscode.window.showErrorMessage(strings.copyFileFailed.replace('{0}', String(err)));
                 }
                 return;
             }
@@ -282,21 +353,142 @@ export function activate(context: vscode.ExtensionContext) {
                 vscode.Uri.file(targetPath),
                 content
             );
-            const answer = await vscode.window.showInformationMessage(
-                strings.fileCopiedTo.replace('{0}', targetPath),
-                strings.openFileButton,
-                strings.okButton
-            );
-            if (answer === strings.openFileButton) {
-                const document = await vscode.workspace.openTextDocument(vscode.Uri.file(targetPath));
-                await vscode.window.showTextDocument(document);
+
+            const wasOpened = await openFileIfConfigured(targetPath);
+            if (!wasOpened) {
+                const answer = await vscode.window.showInformationMessage(
+                    strings.fileCopiedTo.replace('{0}', targetPath),
+                    strings.openFileButton,
+                    strings.okButton
+                );
+                if (answer === strings.openFileButton) {
+                    const document = await vscode.workspace.openTextDocument(vscode.Uri.file(targetPath));
+                    await vscode.window.showTextDocument(document);
+                }
+            } else {
+                vscode.window.showInformationMessage(strings.fileCopiedTo.replace('{0}', targetPath));
             }
         } catch (err) {
             vscode.window.showErrorMessage(strings.copyFileFailed.replace('{0}', String(err)));
         }
     });
 
-    context.subscriptions.push(deleteFile, renameFile, copyFile, copyFileTo);
+    // 移动到指定目录命令
+    let moveTo = vscode.commands.registerCommand('enhanced-tab.moveTo', async (uri: vscode.Uri) => {
+        if (!uri) {
+            return;
+        }
+
+        const sourceFilePath = uri.fsPath;
+        const fileName = path.basename(sourceFilePath);
+        const currentDir = path.dirname(sourceFilePath);
+        const relativeSourcePath = getRelativePath(sourceFilePath);
+
+        // 显示输入框让用户输入目标路径
+        const targetRelativePath = await vscode.window.showInputBox({
+            prompt: strings.enterMoveTargetPath,
+            value: relativeSourcePath,
+            validateInput: (value) => {
+                if (!value) {
+                    return strings.pathEmpty;
+                }
+                // 检查路径是否合法
+                try {
+                    path.parse(value);
+                    return null;
+                } catch {
+                    return strings.invalidPath;
+                }
+            }
+        });
+
+        if (!targetRelativePath) {
+            return;
+        }
+
+        // 获取完整路径
+        const workspaceFolder = vscode.workspace.getWorkspaceFolder(uri);
+        const basePath = workspaceFolder ? workspaceFolder.uri.fsPath : currentDir;
+        const targetPath = getFullPath(targetRelativePath, basePath);
+
+        // 确保目标目录存在
+        try {
+            await vscode.workspace.fs.createDirectory(vscode.Uri.file(path.dirname(targetPath)));
+        } catch (err) {
+            // 如果目录已存在，忽略错误
+        }
+
+        // 检查目标文件是否已存在
+        if (fs.existsSync(targetPath)) {
+            const answer = await vscode.window.showWarningMessage(
+                strings.fileExists.replace('{0}', path.basename(targetPath)),
+                { modal: true },
+                strings.overwriteButton,
+                strings.renameButton,
+                strings.cancelButton
+            );
+
+            if (answer === strings.cancelButton) {
+                return;
+            }
+
+            if (answer === strings.renameButton) {
+                const fileExt = path.extname(path.basename(targetPath));
+                const fileNameWithoutExt = path.basename(path.basename(targetPath), fileExt);
+                let counter = 1;
+                let newFileName = `${fileNameWithoutExt}_${counter}${fileExt}`;
+                while (fs.existsSync(path.join(path.dirname(targetPath), newFileName))) {
+                    counter++;
+                    newFileName = `${fileNameWithoutExt}_${counter}${fileExt}`;
+                }
+                try {
+                    const newFilePath = path.join(path.dirname(targetPath), newFileName);
+                    await vscode.workspace.fs.rename(uri, vscode.Uri.file(newFilePath));
+
+                    const wasOpened = await openFileIfConfigured(newFilePath);
+                    if (!wasOpened) {
+                        const openAnswer = await vscode.window.showInformationMessage(
+                            strings.fileMoved.replace('{0}', newFilePath),
+                            strings.openFileButton,
+                            strings.okButton
+                        );
+                        if (openAnswer === strings.openFileButton) {
+                            const document = await vscode.workspace.openTextDocument(vscode.Uri.file(newFilePath));
+                            await vscode.window.showTextDocument(document);
+                        }
+                    } else {
+                        vscode.window.showInformationMessage(strings.fileMoved.replace('{0}', newFilePath));
+                    }
+                } catch (err) {
+                    vscode.window.showErrorMessage(strings.moveFileFailed.replace('{0}', String(err)));
+                }
+                return;
+            }
+        }
+
+        try {
+            await vscode.workspace.fs.rename(uri, vscode.Uri.file(targetPath));
+
+            const wasOpened = await openFileIfConfigured(targetPath);
+            if (!wasOpened) {
+                const answer = await vscode.window.showInformationMessage(
+                    strings.fileMoved.replace('{0}', targetPath),
+                    strings.openFileButton,
+                    strings.okButton
+                );
+                if (answer === strings.openFileButton) {
+                    const document = await vscode.workspace.openTextDocument(vscode.Uri.file(targetPath));
+                    await vscode.window.showTextDocument(document);
+                }
+            } else {
+                vscode.window.showInformationMessage(strings.fileMoved.replace('{0}', targetPath));
+            }
+        } catch (err) {
+            vscode.window.showErrorMessage(strings.moveFileFailed.replace('{0}', String(err)));
+        }
+    });
+
+    context.subscriptions.push(deleteFile, renameFile, copyFile, copyFileTo, moveTo);
 }
 
 export function deactivate() {} 
