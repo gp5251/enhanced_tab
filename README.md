@@ -30,26 +30,6 @@ The following features will be added to the context menu when right-clicking on 
 
    Move To... - Move current file to specified location
 
-## 快捷键 Keyboard Shortcuts
-
-Windows/Linux:
-- Delete File: `Alt+Shift+D`
-- Rename File: `Alt+Shift+R`
-- Copy File: `Alt+Shift+C`
-- Copy To...: `Alt+Shift+T`
-- Move To...: `Alt+Shift+M`
-
-macOS:
-- Delete File: `Cmd+Shift+D`
-- Rename File: `Cmd+Shift+R`
-- Copy File: `Cmd+Shift+C`
-- Copy To...: `Cmd+Shift+T`
-- Move To...: `Cmd+Shift+M`
-
-所有快捷键都可以在 VS Code 的键盘快捷键设置中自定义。
-
-All keyboard shortcuts can be customized in VS Code's Keyboard Shortcuts settings.
-
 ## 配置 Settings
 
 - `enhanced-tab.autoOpenFile`: 复制/移动文件后自动打开文件（默认：false）
