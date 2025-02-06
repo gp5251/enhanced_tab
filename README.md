@@ -22,9 +22,39 @@ The following features will be added to the context menu when right-clicking on 
 
    Copy File - Copy current file with auto-generated filename
 
-4. 复制文件到 - 复制当前文件，并选择复制到哪个目录
+4. 复制到... - 复制当前文件到指定位置
 
-   Copy To... - Copy current file and choose destination directory
+   Copy To... - Copy current file to specified location
+
+5. 移动到... - 移动当前文件到指定位置
+
+   Move To... - Move current file to specified location
+
+## 快捷键 Keyboard Shortcuts
+
+Windows/Linux:
+- Delete File: `Alt+Shift+D`
+- Rename File: `Alt+Shift+R`
+- Copy File: `Alt+Shift+C`
+- Copy To...: `Alt+Shift+T`
+- Move To...: `Alt+Shift+M`
+
+macOS:
+- Delete File: `Cmd+Shift+D`
+- Rename File: `Cmd+Shift+R`
+- Copy File: `Cmd+Shift+C`
+- Copy To...: `Cmd+Shift+T`
+- Move To...: `Cmd+Shift+M`
+
+所有快捷键都可以在 VS Code 的键盘快捷键设置中自定义。
+
+All keyboard shortcuts can be customized in VS Code's Keyboard Shortcuts settings.
+
+## 配置 Settings
+
+- `enhanced-tab.autoOpenFile`: 复制/移动文件后自动打开文件（默认：false）
+
+  Automatically open file after copy/move operations (default: false)
 
 ## 使用方法 Usage
 
@@ -32,10 +62,18 @@ The following features will be added to the context menu when right-clicking on 
 
    Open any file in the editor
 
-2. 右键点击文件的标签页
+2. 使用以下任一方式操作文件：
+   
+   Use any of the following methods to operate on the file:
 
-   Right-click on the file tab
+   - 右键点击文件的标签页，在弹出的菜单中选择需要的操作
+   
+     Right-click on the file tab and choose the desired operation from the popup menu
 
-3. 在弹出的菜单中选择需要的操作：删除、重命名或复制
+   - 使用对应的快捷键
+   
+     Use the corresponding keyboard shortcuts
 
-   Choose the desired operation from the popup menu: delete, rename or copy
+3. 根据提示完成操作
+
+   Follow the prompts to complete the operation
