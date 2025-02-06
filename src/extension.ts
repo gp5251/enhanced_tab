@@ -28,6 +28,8 @@ interface LocalizedStrings {
     enterMoveTargetPath: string;
     fileMoved: string;
     moveFileFailed: string;
+    directoryNotExist: string;
+    createDirectory: string;
 }
 
 function getLocalizedStrings(): LocalizedStrings {
@@ -59,7 +61,9 @@ function getLocalizedStrings(): LocalizedStrings {
         copyFileFailed: '复制文件失败: {0}',
         enterMoveTargetPath: '输入移动目标路径',
         fileMoved: '文件已移动到 "{0}"',
-        moveFileFailed: '移动文件失败: {0}'
+        moveFileFailed: '移动文件失败: {0}',
+        directoryNotExist: '目录 "{0}" 不存在，是否创建？',
+        createDirectory: '创建目录'
     };
 
     // 英文字符串
@@ -87,7 +91,9 @@ function getLocalizedStrings(): LocalizedStrings {
         copyFileFailed: 'Failed to copy file: {0}',
         enterMoveTargetPath: 'Enter move target path',
         fileMoved: 'File moved to "{0}"',
-        moveFileFailed: 'Failed to move file: {0}'
+        moveFileFailed: 'Failed to move file: {0}',
+        directoryNotExist: 'Directory "{0}" does not exist. Create it?',
+        createDirectory: 'Create Directory'
     };
 
     // 根据语言返回相应的字符串
@@ -135,6 +141,28 @@ async function openFileIfConfigured(filePath: string) {
         return true;
     }
     return false;
+}
+
+// 检查并创建目录的辅助函数
+async function ensureDirectoryExists(dirPath: string, strings: LocalizedStrings): Promise<boolean> {
+    if (!fs.existsSync(dirPath)) {
+        const answer = await vscode.window.showWarningMessage(
+            strings.directoryNotExist.replace('{0}', dirPath),
+            strings.createDirectory,
+            strings.cancelButton
+        );
+
+        if (answer !== strings.createDirectory) {
+            return false;
+        }
+
+        try {
+            await vscode.workspace.fs.createDirectory(vscode.Uri.file(dirPath));
+        } catch (err) {
+            return false;
+        }
+    }
+    return true;
 }
 
 export function activate(context: vscode.ExtensionContext) {
@@ -289,10 +317,9 @@ export function activate(context: vscode.ExtensionContext) {
         const targetPath = getFullPath(targetRelativePath, basePath);
 
         // 确保目标目录存在
-        try {
-            await vscode.workspace.fs.createDirectory(vscode.Uri.file(path.dirname(targetPath)));
-        } catch (err) {
-            // 如果目录已存在，忽略错误
+        const targetDir = path.dirname(targetPath);
+        if (!await ensureDirectoryExists(targetDir, strings)) {
+            return;
         }
 
         // 检查目标文件是否已存在
@@ -412,10 +439,9 @@ export function activate(context: vscode.ExtensionContext) {
         const targetPath = getFullPath(targetRelativePath, basePath);
 
         // 确保目标目录存在
-        try {
-            await vscode.workspace.fs.createDirectory(vscode.Uri.file(path.dirname(targetPath)));
-        } catch (err) {
-            // 如果目录已存在，忽略错误
+        const targetDir = path.dirname(targetPath);
+        if (!await ensureDirectoryExists(targetDir, strings)) {
+            return;
         }
 
         // 检查目标文件是否已存在
