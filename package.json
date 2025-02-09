@@ -2,7 +2,7 @@
   "name": "enhanced-tab",
   "displayName": "Enhanced Tab",
   "description": "为编辑器标签页添加增强功能 | Add enhanced features to editor tabs",
-  "version": "0.1.2",
+  "version": "0.1.5",
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -49,6 +49,10 @@
       {
         "command": "enhanced-tab.moveTo",
         "title": "Move To..."
+      },
+      {
+        "command": "enhanced-tab.resetFile",
+        "title": "Reset File"
       }
     ],
     "menus": {
@@ -71,6 +75,36 @@
         },
         {
           "command": "enhanced-tab.moveTo",
+          "group": "1_modification"
+        },
+        {
+          "command": "enhanced-tab.resetFile",
+          "group": "1_modification"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "enhanced-tab.deleteFile",
+          "group": "1_modification"
+        },
+        {
+          "command": "enhanced-tab.renameFile",
+          "group": "1_modification"
+        },
+        {
+          "command": "enhanced-tab.copyFile",
+          "group": "1_modification"
+        },
+        {
+          "command": "enhanced-tab.copyFileTo",
+          "group": "1_modification"
+        },
+        {
+          "command": "enhanced-tab.moveTo",
+          "group": "1_modification"
+        },
+        {
+          "command": "enhanced-tab.resetFile",
           "group": "1_modification"
         }
       ]

@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
+import { exec } from 'child_process';
 
 // 文本本地化
 interface LocalizedStrings {
@@ -30,6 +31,10 @@ interface LocalizedStrings {
     moveFileFailed: string;
     directoryNotExist: string;
     createDirectory: string;
+    resetFilePrompt: string;
+    resetFileConfirm: string;
+    resetFileSuccess: string;
+    resetFileFailed: string;
 }
 
 function getLocalizedStrings(): LocalizedStrings {
@@ -63,7 +68,11 @@ function getLocalizedStrings(): LocalizedStrings {
         fileMoved: '文件已移动到 "{0}"',
         moveFileFailed: '移动文件失败: {0}',
         directoryNotExist: '目录 "{0}" 不存在，是否创建？',
-        createDirectory: '创建目录'
+        createDirectory: '创建目录',
+        resetFilePrompt: '确定要重置文件 "{0}" 到修改前状态吗？此操作将使所有本地未提交的修改丢失。',
+        resetFileConfirm: '重置',
+        resetFileSuccess: '文件 "{0}" 已重置',
+        resetFileFailed: '重置文件失败: {0}'
     };
 
     // 英文字符串
@@ -93,7 +102,11 @@ function getLocalizedStrings(): LocalizedStrings {
         fileMoved: 'File moved to "{0}"',
         moveFileFailed: 'Failed to move file: {0}',
         directoryNotExist: 'Directory "{0}" does not exist. Create it?',
-        createDirectory: 'Create Directory'
+        createDirectory: 'Create Directory',
+        resetFilePrompt: 'Are you sure you want to reset "{0}" to its previous state? This will discard all local changes.',
+        resetFileConfirm: 'Reset',
+        resetFileSuccess: 'File "{0}" has been reset',
+        resetFileFailed: 'Failed to reset file: {0}'
     };
 
     // 根据语言返回相应的字符串
@@ -180,8 +193,7 @@ export function activate(context: vscode.ExtensionContext) {
         const answer = await vscode.window.showWarningMessage(
             strings.deleteFilePrompt.replace('{0}', fileName),
             { modal: true },
-            strings.confirmButton,
-            strings.cancelButton
+            strings.confirmButton
         );
 
         if (answer === strings.confirmButton) {
@@ -514,7 +526,30 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
-    context.subscriptions.push(deleteFile, renameFile, copyFile, copyFileTo, moveTo);
+    // 新增 resetFile 命令，实现回退文件到修改前的状态
+    let resetFile = vscode.commands.registerCommand('enhanced-tab.resetFile', async (uri: vscode.Uri) => {
+        if (!uri) {
+            return;
+        }
+        const filePath = uri.fsPath;
+        const fileName = path.basename(filePath);
+        const answer = await vscode.window.showWarningMessage(
+            strings.resetFilePrompt.replace('{0}', fileName),
+            { modal: true },
+            strings.resetFileConfirm
+        );
+        if (answer === strings.resetFileConfirm) {
+            exec(`git checkout -- "${filePath}"`, { cwd: path.dirname(filePath) }, (error, stdout, stderr) => {
+                if (error) {
+                    vscode.window.showErrorMessage(strings.resetFileFailed.replace('{0}', error.message));
+                } else {
+                    vscode.window.showInformationMessage(strings.resetFileSuccess.replace('{0}', fileName));
+                }
+            });
+        }
+    });
+
+    context.subscriptions.push(deleteFile, renameFile, copyFile, copyFileTo, moveTo, resetFile);
 }
 
 export function deactivate() {} 

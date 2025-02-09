@@ -30,6 +30,10 @@ The following features will be added to the context menu when right-clicking on 
 
    Move To... - Move current file to specified location
 
+6. 重置文件 - 重置当前文件到修改前状态（使用 git checkout 操作）
+
+   Reset File - Revert current file to its previous state (implemented using git checkout)
+
 ## 配置 Settings
 
 - `enhanced-tab.autoOpenFile`: 复制/移动文件后自动打开文件（默认：false）
