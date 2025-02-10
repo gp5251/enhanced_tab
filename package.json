@@ -2,7 +2,7 @@
   "name": "enhanced-tab",
   "displayName": "Enhanced Tab",
   "description": "为编辑器标签页添加增强功能 | Add enhanced features to editor tabs",
-  "version": "0.1.5",
+  "version": "1.0.0",
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -107,8 +107,72 @@
           "command": "enhanced-tab.resetFile",
           "group": "1_modification"
         }
+      ],
+      "editor/context": [
+        {
+          "command": "enhanced-tab.deleteFile",
+          "group": "1_modification"
+        },
+        {
+          "command": "enhanced-tab.renameFile",
+          "group": "1_modification"
+        },
+        {
+          "command": "enhanced-tab.copyFile",
+          "group": "1_modification"
+        },
+        {
+          "command": "enhanced-tab.copyFileTo",
+          "group": "1_modification"
+        },
+        {
+          "command": "enhanced-tab.moveTo",
+          "group": "1_modification"
+        },
+        {
+          "command": "enhanced-tab.resetFile",
+          "group": "1_modification"
+        }
       ]
-    }
+    },
+    "keybindings": [
+      {
+        "command": "enhanced-tab.deleteFile",
+        "key": "alt+shift+d",
+        "mac": "alt+shift+d",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "enhanced-tab.renameFile",
+        "key": "alt+shift+r",
+        "mac": "alt+shift+r",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "enhanced-tab.copyFile",
+        "key": "alt+shift+c",
+        "mac": "alt+shift+c",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "enhanced-tab.copyFileTo",
+        "key": "alt+shift+t",
+        "mac": "alt+shift+t",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "enhanced-tab.moveTo",
+        "key": "alt+shift+m",
+        "mac": "alt+shift+m",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "enhanced-tab.resetFile",
+        "key": "ctrl+shift+alt+r",
+        "mac": "ctrl+shift+alt+r",
+        "when": "editorTextFocus"
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "pnpm run package",

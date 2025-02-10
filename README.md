@@ -61,3 +61,21 @@ The following features will be added to the context menu when right-clicking on 
 3. 根据提示完成操作
 
    Follow the prompts to complete the operation
+
+---
+注意：这些命令不仅出现在编辑器标签页和资源管理器的右键菜单中，还同时配置在编辑器内部的右键菜单中，方便您在编辑代码时直接访问这些功能。
+
+Additionally, these commands are available in the Editor Context Menu, allowing you to quickly access them by right-clicking within the editor.
+
+## 默认快捷键 (Default Keyboard Shortcuts)
+
+以下是默认配置的快捷键，但您可以在 VS Code 的键盘快捷键设置中自定义修改：
+
+- **Delete File**: `alt+shift+d` (macOS: `cmd+shift+d`)
+- **Rename File**: `alt+shift+r` (macOS: `cmd+shift+r`)
+- **Copy File**: `alt+shift+c` (macOS: `cmd+shift+c`)
+- **Copy To...**: `alt+shift+t` (macOS: `cmd+shift+t`)
+- **Move To...**: `alt+shift+m` (macOS: `cmd+shift+m`)
+- **Reset File**: `ctrl+shift+alt+r` (macOS: `cmd+shift+alt+r`)
+
+您可以通过 VS Code 的键盘快捷键设置页面自定义这些快捷键。
