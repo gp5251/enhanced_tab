@@ -18,19 +18,15 @@ The following features will be added to the context menu when right-clicking on 
 
    Rename File - Rename current file with filename validation
 
-3. 复制文件 - 复制当前文件，自动生成新的文件名
-
-   Copy File - Copy current file with auto-generated filename
-
-4. 复制到... - 复制当前文件到指定位置
+3. 复制到... - 复制当前文件到指定位置
 
    Copy To... - Copy current file to specified location
 
-5. 移动到... - 移动当前文件到指定位置
+4. 移动到... - 移动当前文件到指定位置
 
    Move To... - Move current file to specified location
 
-6. 重置文件 - 重置当前文件到修改前状态（使用 git checkout 操作）
+5. 重置文件 - 重置当前文件到修改前状态（使用 git checkout 操作）
 
    Reset File - Revert current file to its previous state (implemented using git checkout)
 
@@ -71,11 +67,10 @@ Additionally, these commands are available in the Editor Context Menu, allowing 
 
 以下是默认配置的快捷键，但您可以在 VS Code 的键盘快捷键设置中自定义修改：
 
-- **Delete File**: `alt+shift+d` (macOS: `cmd+shift+d`)
-- **Rename File**: `alt+shift+r` (macOS: `cmd+shift+r`)
-- **Copy File**: `alt+shift+c` (macOS: `cmd+shift+c`)
-- **Copy To...**: `alt+shift+t` (macOS: `cmd+shift+t`)
-- **Move To...**: `alt+shift+m` (macOS: `cmd+shift+m`)
+- **Delete File**: `alt+shift+d` 
+- **Rename File**: `alt+shift+r`
+- **Copy To...**: `alt+shift+t`
+- **Move To...**: `alt+shift+m`
 - **Reset File**: `ctrl+shift+alt+r` (macOS: `cmd+shift+alt+r`)
 
 您可以通过 VS Code 的键盘快捷键设置页面自定义这些快捷键。

@@ -244,52 +244,6 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
-    // 复制文件命令
-    let copyFile = vscode.commands.registerCommand('enhanced-tab.copyFile', async (uri: vscode.Uri) => {
-        if (!uri) {
-            return;
-        }
-
-        const sourceFilePath = uri.fsPath;
-        const fileName = path.basename(sourceFilePath);
-        const dirPath = path.dirname(sourceFilePath);
-        const fileExt = path.extname(fileName);
-        const fileNameWithoutExt = path.basename(fileName, fileExt);
-
-        let newFileName = `${fileNameWithoutExt}_copy${fileExt}`;
-        let counter = 1;
-        while (fs.existsSync(path.join(dirPath, newFileName))) {
-            newFileName = `${fileNameWithoutExt}_copy_${counter}${fileExt}`;
-            counter++;
-        }
-
-        try {
-            const content = await vscode.workspace.fs.readFile(uri);
-            const newFilePath = path.join(dirPath, newFileName);
-            await vscode.workspace.fs.writeFile(
-                vscode.Uri.file(newFilePath),
-                content
-            );
-
-            const wasOpened = await openFileIfConfigured(newFilePath);
-            if (!wasOpened) {
-                const answer = await vscode.window.showInformationMessage(
-                    strings.fileCopiedAs.replace('{0}', newFileName),
-                    strings.openFileButton,
-                    strings.okButton
-                );
-                if (answer === strings.openFileButton) {
-                    const document = await vscode.workspace.openTextDocument(vscode.Uri.file(newFilePath));
-                    await vscode.window.showTextDocument(document);
-                }
-            } else {
-                vscode.window.showInformationMessage(strings.fileCopiedAs.replace('{0}', newFileName));
-            }
-        } catch (err) {
-            vscode.window.showErrorMessage(strings.copyFileFailed.replace('{0}', String(err)));
-        }
-    });
-
     // 复制到指定目录命令
     let copyFileTo = vscode.commands.registerCommand('enhanced-tab.copyFileTo', async (uri: vscode.Uri) => {
         if (!uri) {
@@ -413,7 +367,7 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     // 移动到指定目录命令
-    let moveTo = vscode.commands.registerCommand('enhanced-tab.moveTo', async (uri: vscode.Uri) => {
+    let moveFileTo = vscode.commands.registerCommand('enhanced-tab.moveFileTo', async (uri: vscode.Uri) => {
         if (!uri) {
             return;
         }
@@ -549,7 +503,7 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
-    context.subscriptions.push(deleteFile, renameFile, copyFile, copyFileTo, moveTo, resetFile);
+    context.subscriptions.push(deleteFile, renameFile, copyFileTo, moveFileTo, resetFile);
 }
 
 export function deactivate() {} 

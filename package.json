@@ -2,7 +2,7 @@
   "name": "enhanced-tab",
   "displayName": "Enhanced Tab",
   "description": "为编辑器标签页添加增强功能 | Add enhanced features to editor tabs",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -39,15 +39,11 @@
         "title": "Rename File"
       },
       {
-        "command": "enhanced-tab.copyFile",
-        "title": "Copy File"
-      },
-      {
         "command": "enhanced-tab.copyFileTo",
         "title": "Copy To..."
       },
       {
-        "command": "enhanced-tab.moveTo",
+        "command": "enhanced-tab.moveFileTo",
         "title": "Move To..."
       },
       {
@@ -66,15 +62,11 @@
           "group": "1_modification"
         },
         {
-          "command": "enhanced-tab.copyFile",
-          "group": "1_modification"
-        },
-        {
           "command": "enhanced-tab.copyFileTo",
           "group": "1_modification"
         },
         {
-          "command": "enhanced-tab.moveTo",
+          "command": "enhanced-tab.moveFileTo",
           "group": "1_modification"
         },
         {
@@ -92,15 +84,11 @@
           "group": "1_modification"
         },
         {
-          "command": "enhanced-tab.copyFile",
-          "group": "1_modification"
-        },
-        {
           "command": "enhanced-tab.copyFileTo",
           "group": "1_modification"
         },
         {
-          "command": "enhanced-tab.moveTo",
+          "command": "enhanced-tab.moveFileTo",
           "group": "1_modification"
         },
         {
@@ -118,15 +106,11 @@
           "group": "1_modification"
         },
         {
-          "command": "enhanced-tab.copyFile",
-          "group": "1_modification"
-        },
-        {
           "command": "enhanced-tab.copyFileTo",
           "group": "1_modification"
         },
         {
-          "command": "enhanced-tab.moveTo",
+          "command": "enhanced-tab.moveFileTo",
           "group": "1_modification"
         },
         {
@@ -149,19 +133,13 @@
         "when": "editorTextFocus"
       },
       {
-        "command": "enhanced-tab.copyFile",
-        "key": "alt+shift+c",
-        "mac": "alt+shift+c",
-        "when": "editorTextFocus"
-      },
-      {
         "command": "enhanced-tab.copyFileTo",
         "key": "alt+shift+t",
         "mac": "alt+shift+t",
         "when": "editorTextFocus"
       },
       {
-        "command": "enhanced-tab.moveTo",
+        "command": "enhanced-tab.moveFileTo",
         "key": "alt+shift+m",
         "mac": "alt+shift+m",
         "when": "editorTextFocus"
@@ -169,7 +147,7 @@
       {
         "command": "enhanced-tab.resetFile",
         "key": "ctrl+shift+alt+r",
-        "mac": "ctrl+shift+alt+r",
+        "mac": "cmd+shift+alt+r",
         "when": "editorTextFocus"
       }
     ]
