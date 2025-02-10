@@ -184,7 +184,12 @@ export function activate(context: vscode.ExtensionContext) {
     // 删除文件命令
     let deleteFile = vscode.commands.registerCommand('enhanced-tab.deleteFile', async (uri: vscode.Uri) => {
         if (!uri) {
-            return;
+            const activeEditor = vscode.window.activeTextEditor;
+            if (activeEditor) {
+                uri = activeEditor.document.uri;
+            } else {
+                return;
+            }
         }
 
         const filePath = uri.fsPath;
@@ -209,7 +214,12 @@ export function activate(context: vscode.ExtensionContext) {
     // 重命名文件命令
     let renameFile = vscode.commands.registerCommand('enhanced-tab.renameFile', async (uri: vscode.Uri) => {
         if (!uri) {
-            return;
+            const activeEditor = vscode.window.activeTextEditor;
+            if (activeEditor) {
+                uri = activeEditor.document.uri;
+            } else {
+                return;
+            }
         }
 
         const oldFilePath = uri.fsPath;
@@ -247,7 +257,12 @@ export function activate(context: vscode.ExtensionContext) {
     // 复制到指定目录命令
     let copyFileTo = vscode.commands.registerCommand('enhanced-tab.copyFileTo', async (uri: vscode.Uri) => {
         if (!uri) {
-            return;
+            const activeEditor = vscode.window.activeTextEditor;
+            if (activeEditor) {
+                uri = activeEditor.document.uri;
+            } else {
+                return;
+            }
         }
 
         const sourceFilePath = uri.fsPath;
@@ -369,7 +384,12 @@ export function activate(context: vscode.ExtensionContext) {
     // 移动到指定目录命令
     let moveFileTo = vscode.commands.registerCommand('enhanced-tab.moveFileTo', async (uri: vscode.Uri) => {
         if (!uri) {
-            return;
+            const activeEditor = vscode.window.activeTextEditor;
+            if (activeEditor) {
+                uri = activeEditor.document.uri;
+            } else {
+                return;
+            }
         }
 
         const sourceFilePath = uri.fsPath;
@@ -483,7 +503,12 @@ export function activate(context: vscode.ExtensionContext) {
     // 新增 resetFile 命令，实现回退文件到修改前的状态
     let resetFile = vscode.commands.registerCommand('enhanced-tab.resetFile', async (uri: vscode.Uri) => {
         if (!uri) {
-            return;
+            const activeEditor = vscode.window.activeTextEditor;
+            if (activeEditor) {
+                uri = activeEditor.document.uri;
+            } else {
+                return;
+            }
         }
         const filePath = uri.fsPath;
         const fileName = path.basename(filePath);

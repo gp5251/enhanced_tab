@@ -2,7 +2,7 @@
   "name": "enhanced-tab",
   "displayName": "Enhanced Tab",
   "description": "为编辑器标签页添加增强功能 | Add enhanced features to editor tabs",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -55,67 +55,67 @@
       "editor/title/context": [
         {
           "command": "enhanced-tab.deleteFile",
-          "group": "1_modification"
+          "group": "2_enhanced"
         },
         {
           "command": "enhanced-tab.renameFile",
-          "group": "1_modification"
+          "group": "2_enhanced"
         },
         {
           "command": "enhanced-tab.copyFileTo",
-          "group": "1_modification"
+          "group": "2_enhanced"
         },
         {
           "command": "enhanced-tab.moveFileTo",
-          "group": "1_modification"
+          "group": "2_enhanced"
         },
         {
           "command": "enhanced-tab.resetFile",
-          "group": "1_modification"
+          "group": "2_enhanced"
         }
       ],
       "explorer/context": [
         {
           "command": "enhanced-tab.deleteFile",
-          "group": "1_modification"
+          "group": "2_enhanced"
         },
         {
           "command": "enhanced-tab.renameFile",
-          "group": "1_modification"
+          "group": "2_enhanced"
         },
         {
           "command": "enhanced-tab.copyFileTo",
-          "group": "1_modification"
+          "group": "2_enhanced"
         },
         {
           "command": "enhanced-tab.moveFileTo",
-          "group": "1_modification"
+          "group": "2_enhanced"
         },
         {
           "command": "enhanced-tab.resetFile",
-          "group": "1_modification"
+          "group": "2_enhanced"
         }
       ],
       "editor/context": [
         {
           "command": "enhanced-tab.deleteFile",
-          "group": "1_modification"
+          "group": "2_enhanced"
         },
         {
           "command": "enhanced-tab.renameFile",
-          "group": "1_modification"
+          "group": "2_enhanced"
         },
         {
           "command": "enhanced-tab.copyFileTo",
-          "group": "1_modification"
+          "group": "2_enhanced"
         },
         {
           "command": "enhanced-tab.moveFileTo",
-          "group": "1_modification"
+          "group": "2_enhanced"
         },
         {
           "command": "enhanced-tab.resetFile",
-          "group": "1_modification"
+          "group": "2_enhanced"
         }
       ]
     },
@@ -134,8 +134,8 @@
       },
       {
         "command": "enhanced-tab.copyFileTo",
-        "key": "alt+shift+t",
-        "mac": "alt+shift+t",
+        "key": "alt+shift+c",
+        "mac": "alt+shift+c",
         "when": "editorTextFocus"
       },
       {

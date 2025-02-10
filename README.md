@@ -69,7 +69,7 @@ Additionally, these commands are available in the Editor Context Menu, allowing 
 
 - **Delete File**: `alt+shift+d` 
 - **Rename File**: `alt+shift+r`
-- **Copy To...**: `alt+shift+t`
+- **Copy To...**: `alt+shift+c`
 - **Move To...**: `alt+shift+m`
 - **Reset File**: `ctrl+shift+alt+r` (macOS: `cmd+shift+alt+r`)
 
