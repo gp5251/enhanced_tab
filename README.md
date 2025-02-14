@@ -74,3 +74,16 @@ Additionally, these commands are available in the Editor Context Menu, allowing 
 - **Reset File**: `ctrl+shift+alt+r` (macOS: `cmd+shift+alt+r`)
 
 您可以通过 VS Code 的键盘快捷键设置页面自定义这些快捷键。
+
+# 新增命令
+
+## New File
+
+该命令用于在当前活动文件所在的文件夹中创建一个新文件。
+
+- 通过右键菜单调用：在编辑器或资源管理器的右键菜单中选择 "New File"。
+- 快捷键调用：<kbd>Alt+Shift+N</kbd>（macOS 下为 <kbd>Alt+Shift+N</kbd>）。
+
+使用该命令时，会弹出一个输入框，让你输入新文件的名称。如果输入为空或者文件已存在，则会显示错误提示。
+
+---

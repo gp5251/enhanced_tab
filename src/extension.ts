@@ -528,7 +528,33 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
-    context.subscriptions.push(deleteFile, renameFile, copyFileTo, moveFileTo, resetFile);
+    let newFileCommand = vscode.commands.registerCommand('enhanced-tab.newFile', async () => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+            vscode.window.showErrorMessage('无法获取当前活动文件');
+            return;
+        }
+        const currentDir = path.dirname(editor.document.uri.fsPath);
+        const newFileName = await vscode.window.showInputBox({ prompt: strings.enterNewFilename });
+        if (!newFileName || newFileName.trim() === '') {
+            vscode.window.showErrorMessage(strings.filenameEmpty);
+            return;
+        }
+        const newFilePath = path.join(currentDir, newFileName);
+        if (fs.existsSync(newFilePath)) {
+            vscode.window.showErrorMessage(strings.filenameExists);
+            return;
+        }
+        try {
+            fs.writeFileSync(newFilePath, '');
+            vscode.window.showInformationMessage(`文件 "${newFileName}" 创建成功`);
+            openFileIfConfigured(newFilePath);
+        } catch (error: any) {
+            vscode.window.showErrorMessage(`创建文件失败: ${error.message}`);
+        }
+    });
+
+    context.subscriptions.push(deleteFile, renameFile, copyFileTo, moveFileTo, resetFile, newFileCommand);
 }
 
 export function deactivate() {} 
