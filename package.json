@@ -1,7 +1,7 @@
 {
   "name": "enhanced-tab",
   "displayName": "Enhanced Tab",
-  "description": "为编辑器标签页添加增强功能 | Add enhanced features to editor tabs",
+  "description": "为右键菜单添加增强功能 | Add enhanced features to the right-click menu",
   "version": "1.1.3",
   "engines": {
     "vscode": "^1.85.0"
