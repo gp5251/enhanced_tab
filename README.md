@@ -6,9 +6,9 @@ This is a VSCode extension that adds enhanced features to editor tabs.
 
 ## 功能 Features
 
-右键点击编辑器的标签页时，会在上下文菜单中添加以下功能：
+给鼠标右键菜单中添加了以下功能：
 
-The following features will be added to the context menu when right-clicking on editor tabs:
+The following features have been added to the context menu:
 
 1. 删除文件 - 删除当前文件，会有确认提示
 
