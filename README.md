@@ -36,6 +36,10 @@ The following features have been added to the context menu:
 
   Automatically open file after copy/move operations (default: false)
 
+- `enhanced-tab.updateImportsOnFileRename`: 重命名或移动文件时自动更新引用（默认：true）
+
+  Update imports when renaming or moving files (default: true)
+
 ## 使用方法 Usage
 
 1. 在编辑器中打开任意文件
@@ -85,5 +89,13 @@ Additionally, these commands are available in the Editor Context Menu, allowing 
 - 快捷键调用：<kbd>Alt+Shift+N</kbd>（macOS 下为 <kbd>Alt+Shift+N</kbd>）。
 
 使用该命令时，会弹出一个输入框，让你输入新文件的名称。如果输入为空或者文件已存在，则会显示错误提示。
+
+# 1.2.0 更新内容
+
+## 文件引用更新
+
+- 修复了重命名和移动文件时不会自动更新文件引用的问题
+- 现在重命名或移动文件时，默认会像 VS Code 内置命令一样自动更新文件引用
+- 通过 `enhanced-tab.updateImportsOnFileRename` 配置项可以控制是否启用该功能
 
 ---

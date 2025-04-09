@@ -35,6 +35,7 @@ interface LocalizedStrings {
     resetFileConfirm: string;
     resetFileSuccess: string;
     resetFileFailed: string;
+    importsUpdated: string;
 }
 
 function getLocalizedStrings(): LocalizedStrings {
@@ -72,7 +73,8 @@ function getLocalizedStrings(): LocalizedStrings {
         resetFilePrompt: '确定要重置文件 "{0}" 到修改前状态吗？此操作将使所有本地未提交的修改丢失。',
         resetFileConfirm: '重置',
         resetFileSuccess: '文件 "{0}" 已重置',
-        resetFileFailed: '重置文件失败: {0}'
+        resetFileFailed: '重置文件失败: {0}',
+        importsUpdated: '文件引用已更新'
     };
 
     // 英文字符串
@@ -106,7 +108,8 @@ function getLocalizedStrings(): LocalizedStrings {
         resetFilePrompt: 'Are you sure you want to reset "{0}" to its previous state? This will discard all local changes.',
         resetFileConfirm: 'Reset',
         resetFileSuccess: 'File "{0}" has been reset',
-        resetFileFailed: 'Failed to reset file: {0}'
+        resetFileFailed: 'Failed to reset file: {0}',
+        importsUpdated: 'File references have been updated'
     };
 
     // 根据语言返回相应的字符串
@@ -243,11 +246,27 @@ export function activate(context: vscode.ExtensionContext) {
         if (newFileName && newFileName !== oldFileName) {
             const newFilePath = path.join(dirPath, newFileName);
             try {
-                await vscode.workspace.fs.rename(
-                    uri,
-                    vscode.Uri.file(newFilePath)
-                );
-                vscode.window.showInformationMessage(strings.fileRenamed.replace('{0}', newFileName));
+                // 检查是否需要更新引用
+                const config = vscode.workspace.getConfiguration('enhanced-tab');
+                const updateImports = config.get<boolean>('updateImportsOnFileRename', true);
+                
+                if (updateImports) {
+                    // 创建编辑对象，支持文件引用更新
+                    const edit = new vscode.WorkspaceEdit();
+                    edit.renameFile(uri, vscode.Uri.file(newFilePath), { overwrite: false });
+                    
+                    // 应用编辑操作
+                    const success = await vscode.workspace.applyEdit(edit);
+                    if (success) {
+                        vscode.window.showInformationMessage(strings.fileRenamed.replace('{0}', newFileName) + '. ' + strings.importsUpdated);
+                    } else {
+                        vscode.window.showErrorMessage(strings.renameFileFailed.replace('{0}', '操作未能成功完成'));
+                    }
+                } else {
+                    // 使用基本的文件系统操作，不更新引用
+                    await vscode.workspace.fs.rename(uri, vscode.Uri.file(newFilePath));
+                    vscode.window.showInformationMessage(strings.fileRenamed.replace('{0}', newFileName));
+                }
             } catch (err) {
                 vscode.window.showErrorMessage(strings.renameFileFailed.replace('{0}', String(err)));
             }
@@ -460,7 +479,7 @@ export function activate(context: vscode.ExtensionContext) {
                     const wasOpened = await openFileIfConfigured(newFilePath);
                     if (!wasOpened) {
                         const openAnswer = await vscode.window.showInformationMessage(
-                            strings.fileMoved.replace('{0}', newFilePath),
+                            strings.fileMoved.replace('{0}', newFilePath) + '. ' + strings.importsUpdated,
                             strings.openFileButton,
                             strings.okButton
                         );
@@ -469,7 +488,7 @@ export function activate(context: vscode.ExtensionContext) {
                             await vscode.window.showTextDocument(document);
                         }
                     } else {
-                        vscode.window.showInformationMessage(strings.fileMoved.replace('{0}', newFilePath));
+                        vscode.window.showInformationMessage(strings.fileMoved.replace('{0}', newFilePath) + '. ' + strings.importsUpdated);
                     }
                 } catch (err) {
                     vscode.window.showErrorMessage(strings.moveFileFailed.replace('{0}', String(err)));
@@ -479,21 +498,54 @@ export function activate(context: vscode.ExtensionContext) {
         }
 
         try {
-            await vscode.workspace.fs.rename(uri, vscode.Uri.file(targetPath));
-
-            const wasOpened = await openFileIfConfigured(targetPath);
-            if (!wasOpened) {
-                const answer = await vscode.window.showInformationMessage(
-                    strings.fileMoved.replace('{0}', targetPath),
-                    strings.openFileButton,
-                    strings.okButton
-                );
-                if (answer === strings.openFileButton) {
-                    const document = await vscode.workspace.openTextDocument(vscode.Uri.file(targetPath));
-                    await vscode.window.showTextDocument(document);
+            // 检查是否需要更新引用
+            const config = vscode.workspace.getConfiguration('enhanced-tab');
+            const updateImports = config.get<boolean>('updateImportsOnFileRename', true);
+            
+            if (updateImports) {
+                // 创建编辑对象，支持文件引用更新
+                const edit = new vscode.WorkspaceEdit();
+                edit.renameFile(uri, vscode.Uri.file(targetPath), { overwrite: true });
+                
+                // 应用编辑操作
+                const success = await vscode.workspace.applyEdit(edit);
+                
+                if (success) {
+                    const wasOpened = await openFileIfConfigured(targetPath);
+                    if (!wasOpened) {
+                        const answer = await vscode.window.showInformationMessage(
+                            strings.fileMoved.replace('{0}', targetPath) + '. ' + strings.importsUpdated,
+                            strings.openFileButton,
+                            strings.okButton
+                        );
+                        if (answer === strings.openFileButton) {
+                            const document = await vscode.workspace.openTextDocument(vscode.Uri.file(targetPath));
+                            await vscode.window.showTextDocument(document);
+                        }
+                    } else {
+                        vscode.window.showInformationMessage(strings.fileMoved.replace('{0}', targetPath) + '. ' + strings.importsUpdated);
+                    }
+                } else {
+                    vscode.window.showErrorMessage(strings.moveFileFailed.replace('{0}', '操作未能成功完成'));
                 }
             } else {
-                vscode.window.showInformationMessage(strings.fileMoved.replace('{0}', targetPath));
+                // 使用基本的文件系统操作，不更新引用
+                await vscode.workspace.fs.rename(uri, vscode.Uri.file(targetPath));
+                
+                const wasOpened = await openFileIfConfigured(targetPath);
+                if (!wasOpened) {
+                    const answer = await vscode.window.showInformationMessage(
+                        strings.fileMoved.replace('{0}', targetPath),
+                        strings.openFileButton,
+                        strings.okButton
+                    );
+                    if (answer === strings.openFileButton) {
+                        const document = await vscode.workspace.openTextDocument(vscode.Uri.file(targetPath));
+                        await vscode.window.showTextDocument(document);
+                    }
+                } else {
+                    vscode.window.showInformationMessage(strings.fileMoved.replace('{0}', targetPath));
+                }
             }
         } catch (err) {
             vscode.window.showErrorMessage(strings.moveFileFailed.replace('{0}', String(err)));
